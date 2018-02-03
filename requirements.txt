@@ -1,4 +1,4 @@
+colored
 requests
 shodan
-pyfiglet
 tailer

